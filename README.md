@@ -1,6 +1,6 @@
-# Django SSH App
+# Django SSH
 
-Provides a basic front-end for SSH.
+A basic Django app for storing SSH keys
 
 ## License
 
