@@ -23,3 +23,6 @@ class Key(models.Model):
     data = models.TextField(db_index=True, unique=True)
     comment = models.TextField()
     fingerprint = models.CharField(max_length=47)
+
+    class Meta:
+        db_table = 'ssh_key'
