@@ -15,13 +15,14 @@
 # Django SSH. If not, see <http://www.gnu.org/licenses/>.
 
 import re
+
 from subprocess import check_output, CalledProcessError, DEVNULL
 
 from django import forms
 from django.conf import settings
 from django.db import IntegrityError
 
-from eyl.django.ssh.models import Key
+from django_ssh.models import Key
 
 class KeyForm(forms.Form):
     file = forms.FileField()
