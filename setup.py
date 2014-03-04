@@ -18,7 +18,7 @@ from distutils.core import setup
 
 setup(
     name = 'django-ssh',
-    packages = ['django-ssh'],
+    packages = ['eyl.django.ssh'],
     version = '0.0.1',
     description = 'A basic Django app for storing SSH keys',
     author = 'Jon Eyolfson',
