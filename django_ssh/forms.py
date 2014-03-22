@@ -32,8 +32,12 @@ class KeyForm(forms.Form):
         self.user = user
 
     def clean_file(self):
-        if self.user.ssh_keys.count() >= 5:
-            message = 'Sorry, there is a maximum of 5 public keys.'
+        try:
+            max = settings.SSH_KEYS_MAX
+        except AttributeError:
+            max = 5
+        if self.user.ssh_keys.count() >= max:
+            message = 'Sorry, there is a maximum of {} public keys.'.format(max)
             raise forms.ValidationError(message, code='max_keys')
 
         f = self.cleaned_data['file']
