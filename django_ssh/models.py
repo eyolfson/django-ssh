@@ -29,8 +29,8 @@ class Key(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='ssh_keys',
                              db_index=True)
     data = models.TextField(db_index=True, unique=True)
-    comment = models.TextField(blank=False)
-    fingerprint = models.CharField(max_length=47)
+    comment = models.TextField(blank=True)
+    fingerprint = models.CharField(max_length=47, blank=True)
 
     def clean(self):
         with NamedTemporaryFile('w') as f:
