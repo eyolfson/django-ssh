@@ -14,15 +14,38 @@
 # You should have received a copy of the GNU General Public License along with
 # Django SSH. If not, see <http://www.gnu.org/licenses/>.
 
+from logging import getLogger
+from re import match
+from subprocess import check_output, CalledProcessError, DEVNULL
+from tempfile import NamedTemporaryFile
+
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
+
+logger = getLogger('ssh')
 
 class Key(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='ssh_keys',
                              db_index=True)
     data = models.TextField(db_index=True, unique=True)
-    comment = models.TextField()
+    comment = models.TextField(blank=False)
     fingerprint = models.CharField(max_length=47)
+
+    def clean(self):
+        with NamedTemporaryFile('w') as f:
+            f.write('{}\n'.format(self.data))
+            try:
+                o = check_output(['ssh-keygen', '-l', '-f', f.name],
+                                 stderr=DEVNULL, universal_newlines=True)
+            except CalledProcessError:
+                raise ValidationError('OpenSSH key data is not valid')
+            m = match('[0-9]+ ([0-9a-f]{2}(:[0-9a-f]{2}){15})', o)
+            if not m:
+                msg = 'Unexpected OpenSSH key fingerprint'
+                logger.error(msg)
+                raise Exception(msg)
+            self.fingerprint = m.group(1)
 
     class Meta:
         db_table = 'ssh_key'
