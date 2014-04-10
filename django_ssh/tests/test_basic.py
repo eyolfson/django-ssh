@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License along with
 # Django SSH. If not, see <http://www.gnu.org/licenses/>.
 
+from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 
@@ -30,3 +31,8 @@ class BasicTestCase(TestCase):
         self.assertTrue(self.client.login(username='u1', password='p1'))
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
+
+    def test_add_text_bad(self):
+        self.assertTrue(self.client.login(username='u1', password='p1'))
+        with self.assertRaises(ValidationError):
+            self.client.post('/add-text/', {'data': 'Bad', 'comment': 'Bad'})

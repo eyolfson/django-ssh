@@ -39,6 +39,11 @@ def add_text(request):
     if request.method == 'POST':
         form = KeyTextForm(request.POST)
         if form.is_valid():
+            data = form.cleaned_data['data']
+            comment = form.cleaned_data['comment']
+            key = Key(user=request.user, data=data, comment=comment)
+            key.full_clean()
+            key.save()
             return redirect('django_ssh.views.index')
     else:
         form = KeyTextForm()

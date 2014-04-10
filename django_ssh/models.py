@@ -33,7 +33,7 @@ class Key(models.Model):
     fingerprint = models.CharField(max_length=47, blank=True)
 
     def clean(self):
-        if not hasattr(settings, 'SSH_KEYS_MAX'):
+        if hasattr(settings, 'SSH_KEYS_MAX'):
             keys_max = settings.SSH_KEYS_MAX
         else:
             keys_max = 5
@@ -42,17 +42,18 @@ class Key(models.Model):
             raise ValidationError(msg)
         with NamedTemporaryFile('w') as f:
             f.write('{}\n'.format(self.data))
+            f.flush()
             try:
                 o = check_output(['ssh-keygen', '-l', '-f', f.name],
                                  stderr=DEVNULL, universal_newlines=True)
             except CalledProcessError:
                 raise ValidationError('OpenSSH key data is not valid')
-            m = match('[0-9]+ ([0-9a-f]{2}(:[0-9a-f]{2}){15})', o)
-            if not m:
-                msg = 'Unexpected OpenSSH key fingerprint'
-                logger.error(msg)
-                raise Exception(msg)
-            self.fingerprint = m.group(1)
+        m = match('[0-9]+ ([0-9a-f]{2}(:[0-9a-f]{2}){15})', o)
+        if not m:
+            msg = 'Unexpected OpenSSH key fingerprint'
+            logger.error(msg)
+            raise Exception(msg)
+        self.fingerprint = m.group(1)
 
     class Meta:
         db_table = 'ssh_key'
