@@ -32,7 +32,7 @@ class BasicTestCase(TestCase):
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
 
-    def test_add_text_bad(self):
+    def test_add_text_invalid(self):
         self.assertTrue(self.client.login(username='u1', password='p1'))
         with self.assertRaises(ValidationError):
-            self.client.post('/add-text/', {'data': 'Bad', 'comment': 'Bad'})
+            self.client.post('/add-text/', {'data': 'INVALID'})
