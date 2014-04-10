@@ -18,22 +18,23 @@ from logging import getLogger
 from tempfile import NamedTemporaryFile
 
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
 
 logger = getLogger('ssh')
 
-class OpenSSHBodyField(models.TextField):
+class SSHKeyBodyField(models.TextField):
 
     def __init__(self, *args, **kwargs):
         if 'db_index' not in kwargs:
             kwargs['db_index'] = True
         if 'unique' not in kwargs:
             kwargs['unique'] = True
-        super(OpenSSHBodyField, self).__init__(*args, **kwargs)
+        super(SSHKeyBodyField, self).__init__(*args, **kwargs)
 
     def validate(self, value, model_instance):
-        super(OpenSSHBodyField, self).validate(value, model_instance)
+        super(SSHKeyBodyField, self).validate(value, model_instance)
         from subprocess import call, DEVNULL
         with NamedTemporaryFile('w') as f:
             f.write('{}\n'.format(value))
@@ -44,10 +45,10 @@ class OpenSSHBodyField(models.TextField):
             raise ValidationError('Invalid OpenSSH key', code='invalid')
 
 class Key(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+    user = models.ForeignKey(User,
                              related_name='ssh_keys',
                              db_index=True)
-    body = OpenSSHBodyField()
+    body = SSHKeyBodyField()
     comment = models.TextField(blank=True)
     fingerprint = models.CharField(max_length=47, blank=True)
 

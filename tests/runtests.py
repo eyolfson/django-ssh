@@ -28,6 +28,8 @@ if __name__ == '__main__':
                                'ENGINE': 'django.db.backends.sqlite3'
                            },
                        })
+    import django
+    django.setup()
     from django.test.utils import get_runner, setup_test_environment
     setup_test_environment()
     TestRunner = get_runner(settings)

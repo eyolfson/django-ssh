@@ -15,15 +15,15 @@
 # Django SSH. If not, see <http://www.gnu.org/licenses/>.
 
 from django.core.exceptions import ValidationError
-from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 from django.test import Client, TestCase
 
 class BasicTestCase(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.u1 = get_user_model().objects.create_user('u1', password='p1')
-        self.u2 = get_user_model().objects.create_user('u2', password='p2')
+        self.u1 = User.objects.create_user('u1', password='p1')
+        self.u2 = User.objects.create_user('u2', password='p2')
 
     def test_index(self):
         response = self.client.get('/')
