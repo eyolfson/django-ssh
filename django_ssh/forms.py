@@ -24,6 +24,13 @@ from django.db import IntegrityError
 
 from django_ssh.models import Key
 
+class KeyFileForm(forms.Form):
+    file = forms.FileField()
+
+class KeyTextForm(forms.Form):
+    data = forms.CharField(widget=forms.Textarea)
+    comment = forms.CharField()
+
 class KeyForm(forms.Form):
     file = forms.FileField()
 

@@ -14,13 +14,32 @@
 # You should have received a copy of the GNU General Public License along with
 # Django SSH. If not, see <http://www.gnu.org/licenses/>.
 
-from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect, render
 
+from django_ssh.forms import KeyFileForm, KeyTextForm
+from django_ssh.models import Key
+
+@login_required
 def index(request):
     return render(request, 'ssh/index.html')
 
+@login_required
 def add_file(request):
-    return render(request, 'ssh/add_file.html')
+    if request.method == 'POST':
+        form = KeyFileForm(request.POST)
+        if form.is_valid():
+            return redirect('django_ssh.views.index')
+    else:
+        form = KeyFileForm()
+    return render(request, 'ssh/add_file.html', {'form': form})
 
+@login_required
 def add_text(request):
-    return render(request, 'ssh/add_text.html')
+    if request.method == 'POST':
+        form = KeyTextForm(request.POST)
+        if form.is_valid():
+            return redirect('django_ssh.views.index')
+    else:
+        form = KeyTextForm()
+    return render(request, 'ssh/add_text.html', {'form': form})
