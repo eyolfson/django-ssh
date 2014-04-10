@@ -35,4 +35,4 @@ class BasicTestCase(TestCase):
     def test_add_text_invalid(self):
         self.assertTrue(self.client.login(username='u1', password='p1'))
         with self.assertRaises(ValidationError):
-            self.client.post('/add-text/', {'data': 'INVALID'})
+            self.client.post('/add-text/', {'body': 'INVALID'})

@@ -15,6 +15,7 @@
 # Django SSH. If not, see <http://www.gnu.org/licenses/>.
 
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
 from django.shortcuts import redirect, render
 
 from django_ssh.forms import KeyFileForm, KeyTextForm
@@ -39,12 +40,19 @@ def add_text(request):
     if request.method == 'POST':
         form = KeyTextForm(request.POST)
         if form.is_valid():
-            data = form.cleaned_data['data']
+            body = form.cleaned_data['body']
             comment = form.cleaned_data['comment']
-            key = Key(user=request.user, data=data, comment=comment)
-            key.full_clean()
-            key.save()
-            return redirect('django_ssh.views.index')
+            key = Key(user=request.user, body=body, comment=comment)
+            try:
+                key.full_clean()
+                key.save()
+                return redirect('index')
+            except ValidationError as e:
+                for field, messages in e.error_dict.items():
+                    if field not in form.fields:
+                        continue
+                    for message in messages:
+                        form.add_error(field, message)
     else:
         form = KeyTextForm()
     return render(request, 'ssh/add_text.html', {'form': form})

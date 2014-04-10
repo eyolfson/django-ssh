@@ -28,7 +28,7 @@ class KeyFileForm(forms.Form):
     file = forms.FileField()
 
 class KeyTextForm(forms.Form):
-    data = forms.CharField(widget=forms.Textarea)
+    body = forms.CharField(widget=forms.Textarea)
     comment = forms.CharField(required=False)
 
 class KeyForm(forms.Form):

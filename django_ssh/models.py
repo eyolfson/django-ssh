@@ -15,8 +15,6 @@
 # Django SSH. If not, see <http://www.gnu.org/licenses/>.
 
 from logging import getLogger
-from re import match
-from subprocess import check_output, CalledProcessError, DEVNULL
 from tempfile import NamedTemporaryFile
 
 from django.conf import settings
@@ -25,35 +23,58 @@ from django.db import models
 
 logger = getLogger('ssh')
 
+class OpenSSHBodyField(models.TextField):
+
+    def __init__(self, *args, **kwargs):
+        if 'db_index' not in kwargs:
+            kwargs['db_index'] = True
+        if 'unique' not in kwargs:
+            kwargs['unique'] = True
+        super(OpenSSHBodyField, self).__init__(*args, **kwargs)
+
+    def validate(self, value, model_instance):
+        super(OpenSSHBodyField, self).validate(value, model_instance)
+        from subprocess import call, DEVNULL
+        with NamedTemporaryFile('w') as f:
+            f.write('{}\n'.format(value))
+            f.flush()
+            rc = call(['ssh-keygen', '-l', '-f', f.name], stdout=DEVNULL,
+                      stderr=DEVNULL)
+        if rc != 0:
+            raise ValidationError('Invalid OpenSSH key', code='invalid')
+
 class Key(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='ssh_keys',
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             related_name='ssh_keys',
                              db_index=True)
-    data = models.TextField(db_index=True, unique=True)
+    body = OpenSSHBodyField()
     comment = models.TextField(blank=True)
     fingerprint = models.CharField(max_length=47, blank=True)
 
     def clean(self):
+        # Ensure that the maximum number of keys hasn't been reached
         if hasattr(settings, 'SSH_KEYS_MAX'):
-            keys_max = settings.SSH_KEYS_MAX
+            max_count = settings.SSH_KEYS_MAX
         else:
-            keys_max = 5
-        if self.user.ssh_keys.count() >= keys_max:
-            msg = 'You may only have a maximum of {} keys.'.format(keys_max)
+            max_count = 5
+        if self.user.ssh_keys.count() >= max_count:
+            msg = 'Reached the maximum number of keys ({})'.format(max_count)
             raise ValidationError(msg)
+
+        # Calculate the fingerprint
+        from subprocess import check_output, CalledProcessError, DEVNULL
+        from re import match
         with NamedTemporaryFile('w') as f:
-            f.write('{}\n'.format(self.data))
+            f.write('{}\n'.format(self.body))
             f.flush()
             try:
                 o = check_output(['ssh-keygen', '-l', '-f', f.name],
                                  stderr=DEVNULL, universal_newlines=True)
+                m = match('[0-9]+ ([0-9a-f]{2}(:[0-9a-f]{2}){15})', o)
+                if m:
+                    self.fingerprint = m.group(1)
             except CalledProcessError:
-                raise ValidationError('OpenSSH key data is not valid')
-        m = match('[0-9]+ ([0-9a-f]{2}(:[0-9a-f]{2}){15})', o)
-        if not m:
-            msg = 'Unexpected OpenSSH key fingerprint'
-            logger.error(msg)
-            raise Exception(msg)
-        self.fingerprint = m.group(1)
+                pass
 
     class Meta:
         db_table = 'ssh_key'
