@@ -33,6 +33,13 @@ class Key(models.Model):
     fingerprint = models.CharField(max_length=47, blank=True)
 
     def clean(self):
+        if not hasattr(settings, 'SSH_KEYS_MAX'):
+            keys_max = settings.SSH_KEYS_MAX
+        else:
+            keys_max = 5
+        if self.user.ssh_keys.count() >= keys_max:
+            msg = 'You may only have a maximum of {} keys.'.format(keys_max)
+            raise ValidationError(msg)
         with NamedTemporaryFile('w') as f:
             f.write('{}\n'.format(self.data))
             try:

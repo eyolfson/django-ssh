@@ -2,6 +2,11 @@
 
 A basic Django app for storing SSH keys
 
+## Testing
+
+    cd tests
+    PYTHONPATH=.. python runtests.py
+
 ## License
 
-Except where noted, all code is licensed under GPL v3.
+All code is licensed under GPLv3.
