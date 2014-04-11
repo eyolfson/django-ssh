@@ -18,10 +18,11 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 from django.test import Client, TestCase
 
+from django_ssh.models import SSHKeyBodyField
+
 class BasicTestCase(TestCase):
 
     def setUp(self):
-        self.client = Client()
         self.u1 = User.objects.create_user('u1', password='p1')
         self.u2 = User.objects.create_user('u2', password='p2')
 
@@ -34,5 +35,5 @@ class BasicTestCase(TestCase):
 
     def test_add_text_invalid(self):
         self.assertTrue(self.client.login(username='u1', password='p1'))
-        with self.assertRaises(ValidationError):
-            self.client.post('/add-text/', {'body': 'INVALID'})
+        response = self.client.post('/add-text/', {'body': 'INVALID'})
+        self.assertFormError(response, 'form', 'body', 'Enter a valid SSH key.')

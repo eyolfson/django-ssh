@@ -42,7 +42,7 @@ class SSHKeyBodyField(models.TextField):
             rc = call(['ssh-keygen', '-l', '-f', f.name], stdout=DEVNULL,
                       stderr=DEVNULL)
         if rc != 0:
-            raise ValidationError('Invalid OpenSSH key', code='invalid')
+            raise ValidationError('Enter a valid SSH key.', code='invalid')
 
 class Key(models.Model):
     user = models.ForeignKey(User,
