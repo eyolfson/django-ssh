@@ -46,6 +46,8 @@ class BasicTestCase(TestCase):
         self.assertTrue(self.client.login(username='u1', password='p1'))
         response = self.client.post('/add-text/', {'body': body})
         self.assertRedirects(response, '/')
+        self.assertEquals(self.u1.ssh_keys.count(), 1)
+        self.assertEquals(self.u1.ssh_keys.all()[0].fingerprint, fingerprint)
 
     def test_add_text_invalid(self):
         self.assertTrue(self.client.login(username='u1', password='p1'))
