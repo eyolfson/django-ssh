@@ -33,6 +33,20 @@ class BasicTestCase(TestCase):
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
 
+    def test_add_text_valid(self):
+        body = ('ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDHmrZYaqcFtZhbvYVINLVbWV'
+                'I8ig4mLqYdzCDIC7uAlnFdOAMsEuSK0zW0CrRQ+19TAPNasm284hqXD7N+nylb'
+                '8y75BWiUhxh+IK68oxexXdAwpQEKg7pX7PB+GuYF7z6zqsubDsOxL3jx/pZNTY'
+                'fNXTuzYfrfhw83lXxRml75x789pFjg9D0D/Bc/yB6sfd8kvFu+vkt/TXmcsvzB'
+                'tw7AA3J58EIy9nuxon7aDdnwTVkS7DLhBLU/UWXMlkxHHEAL1E+6uxvyCfINrI'
+                '15kkaiY68/46NWrXSHPmHouBoZnQxYMEkmAd12OMIkilAsS6LxGoAB4ABOuQWQ'
+                'epT3kayn')
+        comment = 'u1 k1'
+        fingerprint = 'c6:35:81:1c:a3:ed:9b:2b:36:9f:04:27:13:05:85:10'
+        self.assertTrue(self.client.login(username='u1', password='p1'))
+        response = self.client.post('/add-text/', {'body': body})
+        self.assertRedirects(response, '/')
+
     def test_add_text_invalid(self):
         self.assertTrue(self.client.login(username='u1', password='p1'))
         response = self.client.post('/add-text/', {'body': 'INVALID'})
