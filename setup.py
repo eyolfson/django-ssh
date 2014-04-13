@@ -24,6 +24,14 @@ setup(
     author = 'Jon Eyolfson',
     author_email = 'jon@eyl.io',
     url = 'https://github.com/eyolfson/django-ssh/',
+    license = 'COPYING',
     download_url = ('https://github.com/eyolfson/django-ssh/archive/'
                     'v0.0.3.tar.gz'),
+    classifiers = [
+        'Framework :: Django',
+        ('License :: OSI Approved :: GNU General Public License v3 or later '
+         '(GPLv3+)'),
+        'Operating System :: POSIX',
+        'Programming Language :: Python :: 3',
+    ],
 )
