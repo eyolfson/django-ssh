@@ -28,8 +28,29 @@ def index(request):
 @login_required
 def add_file(request):
     if request.method == 'POST':
-        form = KeyFileForm(request.POST)
+        form = KeyFileForm(request.POST, request.FILES)
         if form.is_valid():
+            file = form.cleaned_data['file']
+            for line in file:
+                line = line.strip()
+                split = line.split(b' ', maxsplit=2)
+                if len(split) != 3:
+                    # TODO error
+                    break
+                body = ' '.join([x.decode() for x in split[:2]])
+                comment = split[2].decode()
+                break
+            key = Key(user=request.user, body=body, comment=comment)
+            try:
+                key.full_clean()
+                key.save()
+                return redirect('index')
+            except ValidationError as e:
+                for field, messages in e.error_dict.items():
+                    if field not in form.fields:
+                        continue
+                    for message in messages:
+                        form.add_error(field, message)
             return redirect('django_ssh.views.index')
     else:
         form = KeyFileForm()

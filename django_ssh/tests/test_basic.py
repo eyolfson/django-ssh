@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License along with
 # Django SSH. If not, see <http://www.gnu.org/licenses/>.
 
+from tempfile import NamedTemporaryFile
+
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 from django.test import Client, TestCase
@@ -45,6 +47,25 @@ class BasicTestCase(TestCase):
         fingerprint = 'c6:35:81:1c:a3:ed:9b:2b:36:9f:04:27:13:05:85:10'
         self.assertTrue(self.client.login(username='u1', password='p1'))
         response = self.client.post('/add-text/', {'body': body})
+        self.assertRedirects(response, '/')
+        self.assertEquals(self.u1.ssh_keys.count(), 1)
+        self.assertEquals(self.u1.ssh_keys.all()[0].fingerprint, fingerprint)
+
+    def test_add_file_valid(self):
+        contents = ('ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCz5qmlFdgVv5waCl9Xqr'
+                    'RLBpkfv/G8mTveYNhaLrLy34NreDSMPqK0qsX4qAn7gl+Aixvj9F4LONid'
+                    'xpwrG+gaMVKQ7yHS9oiqQk6YXYmQMI0Pe4dB6kEj3bDgThxNh8D2kgD6CE'
+                    'HROzkeXhsj3Z3e3vCqulzhmgYHHesKKnVQKrt38/WTEeeoYKfQGRgZRjUH'
+                    'urQlDZN0y65Ohh5zyH1jtQ4TMFUwtWsmKZZVVhA1HnsWF8mcSUoRhaOECH'
+                    'reMy9f8qNXsZypM6032rM5GMBsrRv3JT/77kGnHSM1GIPN7rwIeXgDttff'
+                    'WMIrjiodT7j7gq1ZON93RBeu5QGgzHo9 u1 k2')
+        fingerprint = '51:ca:91:01:0f:14:7b:1a:d9:81:28:d7:9b:46:bb:2a'
+        self.assertTrue(self.client.login(username='u1', password='p1'))
+        with NamedTemporaryFile('bw+') as f:
+            f.write(contents.encode())
+            f.flush()
+            f.seek(0)
+            response = self.client.post('/add-file/', {'file': f})
         self.assertRedirects(response, '/')
         self.assertEquals(self.u1.ssh_keys.count(), 1)
         self.assertEquals(self.u1.ssh_keys.all()[0].fingerprint, fingerprint)
