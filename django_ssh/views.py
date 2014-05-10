@@ -23,7 +23,8 @@ from django_ssh.models import Key
 
 @login_required
 def index(request):
-    return render(request, 'ssh/index.html')
+    return render(request, 'ssh/index.html',
+                  {'keys': Key.objects.filter(user=request.user)})
 
 @login_required
 def add_file(request):
@@ -35,9 +36,11 @@ def add_file(request):
             try:
                 key.full_clean()
                 key.save()
-                return redirect('index')
+                return redirect('ssh:index')
             except ValidationError as e:
-                form.add_error(None, e)
+                for field, error_list in e.error_dict.items():
+                    for error in error_list:
+                        form.add_error(None, error)
     else:
         form = KeyFileForm()
     return render(request, 'ssh/add_file.html', {'form': form})
@@ -53,7 +56,7 @@ def add_text(request):
             try:
                 key.full_clean()
                 key.save()
-                return redirect('index')
+                return redirect('ssh:index')
             except ValidationError as e:
                 form.add_error(None, e)
     else:
