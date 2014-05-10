@@ -22,4 +22,5 @@ urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^add-file/$', views.add_file, name='add-file'),
     url(r'^add-text/$', views.add_text, name='add-text'),
+    url(r'^remove-(?P<key_id>\d+)/$', views.remove, name='remove'),
 ]

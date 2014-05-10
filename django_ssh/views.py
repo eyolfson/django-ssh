@@ -62,3 +62,12 @@ def add_text(request):
     else:
         form = KeyTextForm()
     return render(request, 'ssh/add_text.html', {'form': form})
+
+@login_required
+def remove(request, key_id):
+    try:
+        key = Key.objects.get(pk=key_id, user=request.user)
+        key.delete()
+    except Key.DoesNotExist:
+        pass
+    return redirect('ssh:index')
