@@ -31,7 +31,7 @@ def add_file(request):
         form = KeyFileForm(request.POST, request.FILES)
         if form.is_valid():
             file = form.cleaned_data['file']
-            key = Key(user=request.user, body=file.read())
+            key = Key(user=request.user, body=file.read().decode())
             try:
                 key.full_clean()
                 key.save()
