@@ -16,17 +16,25 @@
 
 from tempfile import NamedTemporaryFile
 
-from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
-from django.test import Client, TestCase
-
-from django_ssh.models import SSHKeyBodyField
+from django.test import TestCase
 
 class BasicTestCase(TestCase):
 
     def setUp(self):
         self.u1 = User.objects.create_user('u1', password='p1')
         self.u2 = User.objects.create_user('u2', password='p2')
+        self.k1 = {'format': 'ssh-rsa',
+                   'data': ('AAAAB3NzaC1yc2EAAAADAQABAAABAQDHmrZYaqcFtZhbvYVINL'
+                            'VbWVI8ig4mLqYdzCDIC7uAlnFdOAMsEuSK0zW0CrRQ+19TAPNa'
+                            'sm284hqXD7N+nylb8y75BWiUhxh+IK68oxexXdAwpQEKg7pX7P'
+                            'B+GuYF7z6zqsubDsOxL3jx/pZNTYfNXTuzYfrfhw83lXxRml75'
+                            'x789pFjg9D0D/Bc/yB6sfd8kvFu+vkt/TXmcsvzBtw7AA3J58E'
+                            'Iy9nuxon7aDdnwTVkS7DLhBLU/UWXMlkxHHEAL1E+6uxvyCfIN'
+                            'rI15kkaiY68/46NWrXSHPmHouBoZnQxYMEkmAd12OMIkilAsS6'
+                            'LxGoAB4ABOuQWQepT3kayn'),
+                   'fingerprint':
+                       'c6:35:81:1c:a3:ed:9b:2b:36:9f:04:27:13:05:85:10'}
 
     def test_index(self):
         response = self.client.get('/')
@@ -35,21 +43,24 @@ class BasicTestCase(TestCase):
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
 
-    def test_add_text_valid(self):
-        body = ('ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDHmrZYaqcFtZhbvYVINLVbWV'
-                'I8ig4mLqYdzCDIC7uAlnFdOAMsEuSK0zW0CrRQ+19TAPNasm284hqXD7N+nylb'
-                '8y75BWiUhxh+IK68oxexXdAwpQEKg7pX7PB+GuYF7z6zqsubDsOxL3jx/pZNTY'
-                'fNXTuzYfrfhw83lXxRml75x789pFjg9D0D/Bc/yB6sfd8kvFu+vkt/TXmcsvzB'
-                'tw7AA3J58EIy9nuxon7aDdnwTVkS7DLhBLU/UWXMlkxHHEAL1E+6uxvyCfINrI'
-                '15kkaiY68/46NWrXSHPmHouBoZnQxYMEkmAd12OMIkilAsS6LxGoAB4ABOuQWQ'
-                'epT3kayn')
+    def test_add_text_basic(self):
+        body = '{format} {data}'.format(**self.k1)
         comment = 'u1 k1'
-        fingerprint = 'c6:35:81:1c:a3:ed:9b:2b:36:9f:04:27:13:05:85:10'
+        fingerprint = self.k1['fingerprint']
+        self.assertTrue(self.client.login(username='u1', password='p1'))
+        response = self.client.post('/add-text/', {'body': body,
+                                                   'comment': comment})
+        self.assertRedirects(response, '/')
+        self.assertEquals(self.u1.ssh_keys.count(), 1)
+        self.assertEquals(self.u1.ssh_keys.get().fingerprint, fingerprint)
+
+    def test_add_text_body_with_comment(self):
+        body = '{format} {data} u1 k1'.format(**self.k1)
         self.assertTrue(self.client.login(username='u1', password='p1'))
         response = self.client.post('/add-text/', {'body': body})
         self.assertRedirects(response, '/')
         self.assertEquals(self.u1.ssh_keys.count(), 1)
-        self.assertEquals(self.u1.ssh_keys.all()[0].fingerprint, fingerprint)
+        self.assertEquals(self.u1.ssh_keys.get().comment, 'u1 k1')
 
     def test_add_file_valid(self):
         contents = ('ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCz5qmlFdgVv5waCl9Xqr'
@@ -72,5 +83,7 @@ class BasicTestCase(TestCase):
 
     def test_add_text_invalid(self):
         self.assertTrue(self.client.login(username='u1', password='p1'))
+        response = self.client.post('/add-text/', {'body': ''})
+        self.assertFormError(response, 'form', 'body', 'This field is required.')
         response = self.client.post('/add-text/', {'body': 'INVALID'})
-        self.assertFormError(response, 'form', 'body', 'Enter a valid SSH key.')
+        self.assertFormError(response, 'form', None, 'Invalid OpenSSH key.')

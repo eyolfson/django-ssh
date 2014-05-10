@@ -15,7 +15,6 @@
 # Django SSH. If not, see <http://www.gnu.org/licenses/>.
 
 from logging import getLogger
-from tempfile import NamedTemporaryFile
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -24,31 +23,11 @@ from django.db import models
 
 logger = getLogger('ssh')
 
-class SSHKeyBodyField(models.TextField):
-
-    def __init__(self, *args, **kwargs):
-        if 'db_index' not in kwargs:
-            kwargs['db_index'] = True
-        if 'unique' not in kwargs:
-            kwargs['unique'] = True
-        super(SSHKeyBodyField, self).__init__(*args, **kwargs)
-
-    def validate(self, value, model_instance):
-        super(SSHKeyBodyField, self).validate(value, model_instance)
-        from subprocess import call, DEVNULL
-        with NamedTemporaryFile('w') as f:
-            f.write('{}\n'.format(value))
-            f.flush()
-            rc = call(['ssh-keygen', '-l', '-f', f.name], stdout=DEVNULL,
-                      stderr=DEVNULL)
-        if rc != 0:
-            raise ValidationError('Enter a valid SSH key.', code='invalid')
-
 class Key(models.Model):
     user = models.ForeignKey(User,
                              related_name='ssh_keys',
                              db_index=True)
-    body = SSHKeyBodyField()
+    body = models.TextField(db_index=True, unique=True)
     comment = models.TextField(blank=True)
     fingerprint = models.CharField(max_length=47, blank=True)
 
@@ -62,20 +41,32 @@ class Key(models.Model):
             msg = 'Reached the maximum number of keys ({})'.format(max_count)
             raise ValidationError(msg)
 
-        # Calculate the fingerprint
+        # RFC 4253 Section 6.6
+        from re import compile, ASCII
+        key_re = compile('\s*([a-z][a-z-]*[a-z]) +([A-Za-z0-9+/=]+)(.*)', ASCII)
+        fingerprint_re = compile('[0-9]+ ([0-9a-f]{2}(:[0-9a-f]{2}){15})')
+
+        m = key_re.match(self.body)
+        if not m:
+            raise ValidationError('Invalid OpenSSH key.', code='invalid')
+        self.body = '{} {}'.format(m.group(1), m.group(2))
+        if self.comment == '':
+            self.comment = m.group(3)
+        self.comment = self.comment.strip()
+
         from subprocess import check_output, CalledProcessError, DEVNULL
-        from re import match
+        from tempfile import NamedTemporaryFile
         with NamedTemporaryFile('w') as f:
             f.write('{}\n'.format(self.body))
             f.flush()
             try:
                 o = check_output(['ssh-keygen', '-l', '-f', f.name],
                                  stderr=DEVNULL, universal_newlines=True)
-                m = match('[0-9]+ ([0-9a-f]{2}(:[0-9a-f]{2}){15})', o)
+                m = fingerprint_re.match(o)
                 if m:
                     self.fingerprint = m.group(1)
             except CalledProcessError:
-                pass
+                raise ValidationError('Invalid OpenSSH key.', code='invalid')
 
     class Meta:
         db_table = 'ssh_key'
