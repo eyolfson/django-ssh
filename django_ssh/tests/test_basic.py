@@ -25,25 +25,25 @@ class BasicTestCase(TestCase):
         self.u1 = User.objects.create_user('u1', password='p1')
         self.u2 = User.objects.create_user('u2', password='p2')
         self.k1 = {'format': 'ssh-rsa',
-                   'data': ('AAAAB3NzaC1yc2EAAAADAQABAAABAQDHmrZYaqcFtZhbvYVINL'
-                            'VbWVI8ig4mLqYdzCDIC7uAlnFdOAMsEuSK0zW0CrRQ+19TAPNa'
-                            'sm284hqXD7N+nylb8y75BWiUhxh+IK68oxexXdAwpQEKg7pX7P'
-                            'B+GuYF7z6zqsubDsOxL3jx/pZNTYfNXTuzYfrfhw83lXxRml75'
-                            'x789pFjg9D0D/Bc/yB6sfd8kvFu+vkt/TXmcsvzBtw7AA3J58E'
-                            'Iy9nuxon7aDdnwTVkS7DLhBLU/UWXMlkxHHEAL1E+6uxvyCfIN'
-                            'rI15kkaiY68/46NWrXSHPmHouBoZnQxYMEkmAd12OMIkilAsS6'
-                            'LxGoAB4ABOuQWQepT3kayn'),
+                   'data': (
+                       'AAAAB3NzaC1yc2EAAAADAQABAAABAQDHmrZYaqcFtZhbvYVINLVbWVI'
+                       '8ig4mLqYdzCDIC7uAlnFdOAMsEuSK0zW0CrRQ+19TAPNasm284hqXD7'
+                       'N+nylb8y75BWiUhxh+IK68oxexXdAwpQEKg7pX7PB+GuYF7z6zqsubD'
+                       'sOxL3jx/pZNTYfNXTuzYfrfhw83lXxRml75x789pFjg9D0D/Bc/yB6s'
+                       'fd8kvFu+vkt/TXmcsvzBtw7AA3J58EIy9nuxon7aDdnwTVkS7DLhBLU'
+                       '/UWXMlkxHHEAL1E+6uxvyCfINrI15kkaiY68/46NWrXSHPmHouBoZnQ'
+                       'xYMEkmAd12OMIkilAsS6LxGoAB4ABOuQWQepT3kayn'),
                    'fingerprint':
                        'c6:35:81:1c:a3:ed:9b:2b:36:9f:04:27:13:05:85:10'}
         self.k2 = {'format': 'ssh-rsa',
-                   'data': ('AAAAB3NzaC1yc2EAAAADAQABAAABAQCz5qmlFdgVv5waCl9Xqr'
-                            'RLBpkfv/G8mTveYNhaLrLy34NreDSMPqK0qsX4qAn7gl+Aixvj'
-                            '9F4LONidxpwrG+gaMVKQ7yHS9oiqQk6YXYmQMI0Pe4dB6kEj3b'
-                            'DgThxNh8D2kgD6CEHROzkeXhsj3Z3e3vCqulzhmgYHHesKKnVQ'
-                            'Krt38/WTEeeoYKfQGRgZRjUHurQlDZN0y65Ohh5zyH1jtQ4TMF'
-                            'UwtWsmKZZVVhA1HnsWF8mcSUoRhaOECHreMy9f8qNXsZypM603'
-                            '2rM5GMBsrRv3JT/77kGnHSM1GIPN7rwIeXgDttffWMIrjiodT7'
-                            'j7gq1ZON93RBeu5QGgzHo9'),
+                   'data': (
+                       'AAAAB3NzaC1yc2EAAAADAQABAAABAQCz5qmlFdgVv5waCl9XqrRLBpk'
+                       'fv/G8mTveYNhaLrLy34NreDSMPqK0qsX4qAn7gl+Aixvj9F4LONidxp'
+                       'wrG+gaMVKQ7yHS9oiqQk6YXYmQMI0Pe4dB6kEj3bDgThxNh8D2kgD6C'
+                       'EHROzkeXhsj3Z3e3vCqulzhmgYHHesKKnVQKrt38/WTEeeoYKfQGRgZ'
+                       'RjUHurQlDZN0y65Ohh5zyH1jtQ4TMFUwtWsmKZZVVhA1HnsWF8mcSUo'
+                       'RhaOECHreMy9f8qNXsZypM6032rM5GMBsrRv3JT/77kGnHSM1GIPN7r'
+                       'wIeXgDttffWMIrjiodT7j7gq1ZON93RBeu5QGgzHo9'),
                    'fingerprint':
                        '51:ca:91:01:0f:14:7b:1a:d9:81:28:d7:9b:46:bb:2a'}
 
