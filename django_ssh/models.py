@@ -65,7 +65,7 @@ class Key(models.Model):
                 m = fingerprint_re.match(o)
                 if m:
                     self.fingerprint = m.group(1)
-            except CalledProcessError:
+            except:
                 raise ValidationError('Invalid OpenSSH key.', code='invalid')
 
     class Meta:
