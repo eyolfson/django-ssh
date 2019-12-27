@@ -19,14 +19,14 @@ from distutils.core import setup
 setup(
     name = 'django-ssh',
     packages = ['django_ssh'],
-    version = '0.1.1',
+    version = '0.1.2',
     description = 'A basic Django app for storing SSH keys',
     author = 'Jon Eyolfson',
     author_email = 'jon@eyl.io',
     url = 'https://github.com/eyolfson/django-ssh/',
     license = 'COPYING',
     download_url = ('https://github.com/eyolfson/django-ssh/archive/'
-                    'v0.1.1.tar.gz'),
+                    'v0.1.2.tar.gz'),
     classifiers = [
         'Framework :: Django',
         ('License :: OSI Approved :: GNU General Public License v3 or later '
