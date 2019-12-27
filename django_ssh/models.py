@@ -26,6 +26,7 @@ logger = getLogger('ssh')
 class Key(models.Model):
     user = models.ForeignKey(User,
                              related_name='ssh_keys',
+                             on_delete=models.CASCADE,
                              db_index=True)
     body = models.TextField(db_index=True, unique=True)
     comment = models.TextField(blank=True)
