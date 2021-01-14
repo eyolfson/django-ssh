@@ -45,7 +45,7 @@ class Key(models.Model):
         # RFC 4253 Section 6.6
         from re import compile, ASCII
         key_re = compile('\s*([a-z][a-z-]*[a-z]) +([A-Za-z0-9+/=]+)(.*)', ASCII)
-        fingerprint_re = compile('[0-9]+ ([0-9a-f]{2}(:[0-9a-f]{2}){15})')
+        fingerprint_re = compile('[0-9]+ MD5:([0-9a-f]{2}(:[0-9a-f]{2}){15})')
 
         m = key_re.match(self.body)
         if not m:
@@ -61,7 +61,7 @@ class Key(models.Model):
             f.write('{}\n'.format(self.body))
             f.flush()
             try:
-                o = check_output(['ssh-keygen', '-l', '-f', f.name],
+                o = check_output(['ssh-keygen', '-l', '-E', 'md5', '-f', f.name],
                                  stderr=DEVNULL, universal_newlines=True)
                 m = fingerprint_re.match(o)
                 if m:

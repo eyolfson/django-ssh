@@ -14,24 +14,37 @@
 # You should have received a copy of the GNU General Public License along with
 # Django SSH. If not, see <http://www.gnu.org/licenses/>.
 
+import django
+from django.conf import settings
+from django.test.utils import get_runner
+
 if __name__ == '__main__':
-    from django.conf import settings
     settings.configure(INSTALLED_APPS = (
                            'django.contrib.contenttypes',
                            'django.contrib.sessions',
                            'django.contrib.auth',
                            'django_ssh',
                        ),
-                       ROOT_URLCONF = 'django_ssh.urls',
+                       ROOT_URLCONF = 'urls',
+                       MIDDLEWARE = [
+                           'django.contrib.sessions.middleware.SessionMiddleware',
+                           'django.contrib.auth.middleware.AuthenticationMiddleware',
+                       ],
+                       TEMPLATES = [
+                           {
+                               'BACKEND': 'django.template.backends.django.DjangoTemplates',
+                               'DIRS': [],
+                               'APP_DIRS': True,
+                               'OPTIONS': {
+                               },
+                           },
+                       ],
                        DATABASES = {
                            'default': {
                                'ENGINE': 'django.db.backends.sqlite3'
                            },
                        })
-    import django
     django.setup()
-    from django.test.utils import get_runner, setup_test_environment
-    setup_test_environment()
     TestRunner = get_runner(settings)
     test_runner = TestRunner()
     test_runner.run_tests(['django_ssh'])

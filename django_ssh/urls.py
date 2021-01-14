@@ -14,13 +14,14 @@
 # You should have received a copy of the GNU General Public License along with
 # Django SSH. If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import url
+from django.urls import path
 
 from django_ssh import views
 
+app_name = 'ssh'
 urlpatterns = [
-    url(r'^$', views.index, name='index'),
-    url(r'^add-file/$', views.add_file, name='add-file'),
-    url(r'^add-text/$', views.add_text, name='add-text'),
-    url(r'^remove-(?P<key_id>\d+)/$', views.remove, name='remove'),
+    path('', views.index, name='index'),
+    path('add-file/', views.add_file, name='add-file'),
+    path('add-text/', views.add_text, name='add-text'),
+    path('remove-<int:key_id>/', views.remove, name='remove'),
 ]
