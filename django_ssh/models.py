@@ -69,5 +69,7 @@ class Key(models.Model):
             except:
                 raise ValidationError('Invalid OpenSSH key.', code='invalid')
 
+    def __str__(self):
+        return f'{self.user.username} (Key {self.id})'
     class Meta:
         db_table = 'ssh_key'
