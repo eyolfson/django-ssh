@@ -13,4 +13,4 @@ A basic Django app for storing SSH keys
 
 ## License
 
-All code is licensed under GPLv3.
+All code is licensed under AGPLv3.
